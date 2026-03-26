@@ -747,6 +747,7 @@
 </template>
 <script lang="ts" setup>
     import { ref, computed } from 'vue';
+    import type { ApexOptions } from 'apexcharts';
     import apexchart from 'vue3-apexcharts';
 
     import { useAppStore } from '@/stores/app';
@@ -907,7 +908,7 @@
                     stops: isDark ? [100, 100] : [45, 100],
                 },
             },
-        };
+        } as ApexOptions;
     });
 
     const revenueSeries = ref([
@@ -936,7 +937,7 @@
             stroke: {
                 show: true,
                 width: 25,
-                colors: isDark ? '#0e1726' : '#fff',
+                colors: isDark ? ['#0e1726'] : ['#fff'],
             },
             colors: isDark ? ['#5c1ac3', '#e2a03f', '#e7515a', '#e2a03f'] : ['#e2a03f', '#5c1ac3', '#e7515a'],
             legend: {
@@ -1002,7 +1003,7 @@
                     },
                 },
             },
-        };
+        } as ApexOptions;
     });
 
     const salesByCategorySeries = ref([985, 737, 270]);
@@ -1076,7 +1077,7 @@
                     left: -20,
                 },
             },
-        };
+        } as ApexOptions;
     });
 
     const dailySalesSeries = ref([
@@ -1137,7 +1138,7 @@
                     show: false,
                 },
             },
-        };
+        } as ApexOptions;
     });
 
     const totalOrdersSeries = ref([

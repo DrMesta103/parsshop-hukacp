@@ -209,7 +209,7 @@ export interface ProductFormPayload {
   brandId?: string
   brand: string
   basePriceUSD: number
-  salePriceUSD?: number | null
+  salePriceUSD?: number | null | ''
   stock: number
   featured: boolean
   type: ProductType

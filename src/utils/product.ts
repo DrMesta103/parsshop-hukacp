@@ -139,8 +139,9 @@ export const normalizeAttributes = (attributes?: Record<string, unknown> | Produ
   }, {})
 }
 
-export const attributesToEntries = (attributes?: ProductAttributes): AttributeEntry[] => {
-  const entries = Object.entries(attributes || {}).map(([key, value]) => ({
+export const attributesToEntries = (attributes?: ProductAttributes | ProductAttributeAssignment[]): AttributeEntry[] => {
+  const normalizedAttributes = normalizeAttributes(attributes)
+  const entries = Object.entries(normalizedAttributes).map(([key, value]) => ({
     key,
     value: value === null || value === undefined ? '' : String(value),
   }))
@@ -263,7 +264,7 @@ export const normalizeEnglishSlug = (value: string) =>
 
 export const generateEnglishSlug = (value: string) => normalizeEnglishSlug(transliteratePersianToLatin(value))
 
-export const formatCurrency = (value?: number | null) => {
+export const formatCurrency = (value?: number | null | '') => {
   const safeValue = Number(value || 0)
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

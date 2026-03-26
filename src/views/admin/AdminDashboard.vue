@@ -202,6 +202,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import type { ApexOptions } from 'apexcharts'
 import apexchart from 'vue3-apexcharts'
 import { useAppStore } from '@/stores/app'
 import IconHorizontalDots from '@/components/icon/icon-horizontal-dots.vue'
@@ -399,7 +400,7 @@ const revenueChart = computed(() => {
         stops: [40, 100],
       },
     },
-  }
+  } as ApexOptions
 })
 
 const salesByCategory = computed(() => {
@@ -446,7 +447,7 @@ const salesByCategory = computed(() => {
       hover: { filter: { type: 'none', value: 0.15 } },
       active: { filter: { type: 'none', value: 0.15 } },
     },
-  }
+  } as ApexOptions
 })
 
 const dailySales = computed(() => ({
@@ -478,7 +479,7 @@ const dailySales = computed(() => ({
       formatter: (value: number) => `${value} سفارش`,
     },
   },
-}))
+} as ApexOptions))
 
 const inventoryChart = computed(() => ({
   chart: {
@@ -510,5 +511,5 @@ const inventoryChart = computed(() => ({
       formatter: (value: number) => `${value} SKU`,
     },
   },
-}))
+} as ApexOptions))
 </script>

@@ -127,7 +127,7 @@ const errors = reactive({
 const errorMessage = ref('')
 const countdown = ref(120) // 2 minutes
 const isResending = ref(false)
-let countdownInterval: NodeJS.Timeout | null = null
+let countdownInterval: ReturnType<typeof setInterval> | null = null
 
 const phone = ref(sessionStorage.getItem('otpPhone') || '')
 const fullName = ref(sessionStorage.getItem('otpFullName') || '')

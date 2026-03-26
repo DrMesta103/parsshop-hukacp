@@ -1,5 +1,5 @@
 import { $themeConfig } from '@/theme.config'
-import { useAppStore } from '@/stores/app'
+import { useAppStore, type LocaleCode } from '@/stores/app'
 
 export default {
   init() {
@@ -32,7 +32,7 @@ export default {
     store.toggleSemidark(value === 'true' ? true : $themeConfig.semidark)
   },
 
-  toggleLanguage(item?: { code: string; name: string }) {
+  toggleLanguage(item?: { code: LocaleCode; name: string }) {
     const store = useAppStore()
     const lang = item || store.languageList.find((entry) => entry.code === store.locale) || store.languageList[0]
     store.toggleLocale(lang.code)

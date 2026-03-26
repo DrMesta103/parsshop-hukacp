@@ -224,7 +224,7 @@
                 v-model="form.slug"
                 type="text"
                 dir="ltr"
-                inputmode="latin"
+                inputmode="text"
                 class="form-input"
                 placeholder="bolbering-sanati"
                 @input="sanitizeSlugInput"

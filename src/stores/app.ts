@@ -3,6 +3,7 @@ import i18n from '@/i18n'
 import appSetting from '@/app-setting'
 
 const rtlLanguages = new Set(['ae', 'fa', 'ar'])
+export type LocaleCode = 'fa' | 'ae' | 'en'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
@@ -13,13 +14,13 @@ export const useAppStore = defineStore('app', {
     rtlClass: 'rtl',
     animation: '',
     navbar: 'navbar-sticky',
-    locale: 'fa',
+    locale: 'fa' as LocaleCode,
     sidebar: false,
     languageList: [
       { code: 'fa', name: 'فارسی' },
       { code: 'ae', name: 'Arabic' },
       { code: 'en', name: 'English' },
-    ],
+    ] as Array<{ code: LocaleCode; name: string }>,
     isShowMainLoader: true,
     semidark: false,
   }),
@@ -81,7 +82,7 @@ export const useAppStore = defineStore('app', {
       this.semidark = value
     },
 
-    toggleLocale(payload: string | null = null) {
+    toggleLocale(payload: LocaleCode | null = null) {
       const value = payload || this.locale
       i18n.global.locale.value = value
       localStorage.setItem('i18n_locale', value)

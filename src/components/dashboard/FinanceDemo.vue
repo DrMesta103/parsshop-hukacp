@@ -490,6 +490,7 @@
 </template>
 <script lang="ts" setup>
     import { ref, computed } from 'vue';
+    import type { ApexOptions } from 'apexcharts';
     import apexchart from 'vue3-apexcharts';
     import { useAppStore } from '@/stores/app';
     import { useMeta } from '@/composables/use-meta';
@@ -546,7 +547,7 @@
             },
             responsive: [
                 {
-                    breakPoint: 576,
+                    breakpoint: 576,
                     options: {
                         chart: {
                             height: 95,
@@ -561,7 +562,7 @@
                     },
                 },
             ],
-        };
+        } as ApexOptions;
     });
 
     const bitcoinSeries = ref([
@@ -608,7 +609,7 @@
             },
             responsive: [
                 {
-                    breakPoint: 576,
+                    breakpoint: 576,
                     options: {
                         chart: {
                             height: 95,
@@ -623,7 +624,7 @@
                     },
                 },
             ],
-        };
+        } as ApexOptions;
     });
 
     const ethereumSeries = ref([
@@ -670,7 +671,7 @@
             },
             responsive: [
                 {
-                    breakPoint: 576,
+                    breakpoint: 576,
                     options: {
                         chart: {
                             height: 95,
@@ -685,7 +686,7 @@
                     },
                 },
             ],
-        };
+        } as ApexOptions;
     });
 
     const litecoinSeries = ref([
@@ -732,7 +733,7 @@
             },
             responsive: [
                 {
-                    breakPoint: 576,
+                    breakpoint: 576,
                     options: {
                         chart: {
                             height: 95,
@@ -747,7 +748,7 @@
                     },
                 },
             ],
-        };
+        } as ApexOptions;
     });
 
     const binanceSeries = ref([
@@ -794,7 +795,7 @@
             },
             responsive: [
                 {
-                    breakPoint: 576,
+                    breakpoint: 576,
                     options: {
                         chart: {
                             height: 95,
@@ -809,7 +810,7 @@
                     },
                 },
             ],
-        };
+        } as ApexOptions;
     });
 
     const tetherSeries = ref([
@@ -856,7 +857,7 @@
             },
             responsive: [
                 {
-                    breakPoint: 576,
+                    breakpoint: 576,
                     options: {
                         chart: {
                             height: 95,
@@ -871,7 +872,7 @@
                     },
                 },
             ],
-        };
+        } as ApexOptions;
     });
 
     const solanaSeries = ref([

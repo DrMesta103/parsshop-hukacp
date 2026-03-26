@@ -12,9 +12,9 @@ import type {
 } from '@/types/product'
 
 type QueryPrimitive = string | number | boolean | null | undefined
-type QueryValue = QueryPrimitive | string[] | ProductAttributes | ProductAttributeAssignment[] | ProductMeta | Record<string, unknown>
+export type QueryValue = QueryPrimitive | string[] | ProductAttributes | ProductAttributeAssignment[] | ProductMeta | Record<string, unknown>
 
-export const buildQueryParams = (params: Record<string, QueryValue>) => {
+export const buildQueryParams = (params: Record<string, unknown>) => {
   const query: Record<string, string | number | boolean> = {}
 
   Object.entries(params).forEach(([key, value]) => {
@@ -24,19 +24,19 @@ export const buildQueryParams = (params: Record<string, QueryValue>) => {
 
     if (Array.isArray(value)) {
       if (value.length > 0) {
-        query[key] = JSON.stringify(value)
+        query[key] = JSON.stringify(value as QueryValue)
       }
       return
     }
 
     if (typeof value === 'object') {
       if (Object.keys(value).length > 0) {
-        query[key] = JSON.stringify(value)
+        query[key] = JSON.stringify(value as QueryValue)
       }
       return
     }
 
-    query[key] = value
+    query[key] = value as string | number | boolean
   })
 
   return query
