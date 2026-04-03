@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { API_BASE_URL } from '@/config/api'
 import type { 
   ApiResponse, 
   AuthResponse, 
@@ -17,7 +18,7 @@ class ApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: '/api', // استفاده از proxy
+      baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'

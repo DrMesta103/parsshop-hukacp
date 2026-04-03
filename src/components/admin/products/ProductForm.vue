@@ -537,7 +537,7 @@ const validateForm = () => {
   if (!form.sku.trim()) return 'SKU الزامی است'
   if (!form.slug.trim()) return 'اسلاگ الزامی است'
   if (!form.technicalCode.trim()) return 'کد فنی الزامی است'
-  if (!form.brandId && !form.brand.trim()) return 'برند الزامی است'
+  if (!form.brandId && !(form.brand || '').trim()) return 'برند الزامی است'
   if (form.basePriceUSD < 0) return 'قیمت پایه نمی تواند منفی باشد'
   if (form.salePriceUSD !== null && form.salePriceUSD !== undefined && form.salePriceUSD !== '' && Number(form.salePriceUSD) < 0) {
     return 'قیمت فروش نمی تواند منفی باشد'

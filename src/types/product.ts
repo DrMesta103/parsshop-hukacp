@@ -21,6 +21,7 @@ export interface ProductAttributeOption {
 
 export interface ProductAttributeAssignment {
   attributeId?: string
+  displayOrder?: number
   name?: string
   slug?: string
   dataType?: ProductAttributeDataType
@@ -202,12 +203,12 @@ export interface ProductFormPayload {
   sku: string
   title: string
   slug: string
-  summary: string
-  description: string
+  summary?: string
+  description?: string
   meta?: ProductMeta
   technicalCode: string
   brandId?: string
-  brand: string
+  brand?: string
   basePriceUSD: number
   salePriceUSD?: number | null | ''
   stock: number
@@ -215,6 +216,8 @@ export interface ProductFormPayload {
   type: ProductType
   status: ProductStatus
   categoryId?: string
+  primaryCategoryId?: string
+  categoryIds?: string[]
   attributes: ProductAttributes | ProductAttributeAssignment[]
   tags: string[]
   existingMainImageUrl?: string

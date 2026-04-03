@@ -5,11 +5,11 @@
         <div class="space-y-2">
           <div class="inline-flex items-center gap-2 rounded-full border border-white-light bg-white-light/40 px-3 py-1 text-xs font-semibold text-primary dark:border-[#1b2e4b] dark:bg-[#060818]">
             <span class="h-2 w-2 rounded-full bg-primary"></span>
-            ایجاد محصول
+            {{ pageBadgeLabel }}
           </div>
-          <h1 class="text-3xl font-bold tracking-tight text-black dark:text-white">افزودن محصول جدید</h1>
+          <h1 class="text-3xl font-bold tracking-tight text-black dark:text-white">{{ pageTitle }}</h1>
           <p class="max-w-3xl text-sm leading-7 text-white-dark">
-            فرم به چند باکس مشخص تقسیم شده تا اطلاعات پایه، محتوا، سئو، رسانه و ویژگی‌ها از هم جدا باشند و صفحه شلوغ نشود.
+            {{ pageDescription }}
           </p>
         </div>
 
@@ -17,7 +17,7 @@
           <router-link to="/admin/products" class="btn btn-outline-secondary">بازگشت به لیست</router-link>
           <button type="submit" form="create-product-form" class="btn btn-primary" :disabled="isSubmitting || isBootLoading">
             <span v-if="isSubmitting">در حال ذخیره...</span>
-            <span v-else>ذخیره محصول</span>
+            <span v-else>{{ props.mode === 'edit' ? 'ذخیره تغییرات' : 'ذخیره محصول' }}</span>
           </button>
         </div>
       </div>
@@ -121,52 +121,90 @@
               </div>
             </div>
 
-            <div v-else-if="baseInfoTab === 'categories'" class="grid grid-cols-1 gap-5 xl:grid-cols-[220px_minmax(0,1fr)_260px]">
-              <div>
-                <label for="product-type">نوع محصول</label>
-                <select id="product-type" v-model="form.type" class="form-select">
+            <div v-else-if="baseInfoTab === 'categories'" class="grid grid-cols-1 gap-5 xl:grid-cols-[240px_minmax(0,1fr)_280px]">
+              <div class="rounded-[24px] border border-primary/15 bg-gradient-to-br from-primary/10 via-white to-white px-5 py-5 shadow-sm dark:border-primary/20 dark:from-primary/10 dark:via-[#0e1726] dark:to-[#0b1321]">
+                <label for="product-type" class="text-sm font-semibold text-black dark:text-white">نوع محصول</label>
+                <p class="mt-1 text-xs leading-6 text-white-dark">با انتخاب نوع، فقط دسته‌بندی‌ها و برندهای مرتبط نمایش داده می‌شوند.</p>
+                <select id="product-type" v-model="form.type" class="form-select mt-4 rounded-[16px] border-white bg-white/90 shadow-sm dark:border-[#1b2e4b] dark:bg-[#0b1321]">
                   <option v-for="item in productTypeOptions" :key="item.value" :value="item.value">{{ item.label }}</option>
                 </select>
-                <div class="mb-2 flex items-center justify-between gap-3">
-                  <span class="text-xs text-white-dark">Ù†Ù…Ø§ÛŒ Ø¯Ø±Ø®ØªÛŒ</span>
-                  <button v-if="form.categoryId" type="button" class="text-xs text-danger hover:underline" @click="form.categoryId = ''">Ù¾Ø§Ú© Ú©Ø±Ø¯Ù† Ø§Ù†ØªØ®Ø§Ø¨</button>
+                <div class="mt-4 rounded-[18px] border border-primary/15 bg-white/80 px-4 py-3 text-sm shadow-sm dark:border-primary/20 dark:bg-[#0f1b30]/80">
+                  <div class="text-xs text-white-dark">نوع انتخاب‌شده</div>
+                  <div class="mt-1 font-semibold text-black dark:text-white">{{ selectedProductTypeLabel }}</div>
+                  <div class="mt-2 text-[11px] leading-5 text-white-dark">{{ filteredCategories.length }} دسته‌بندی و {{ filteredBrands.length }} برند برای این نوع در دسترس است.</div>
                 </div>
-                <input id="product-category-search" v-model.trim="categorySearch" type="text" class="form-input" placeholder="Ø¬Ø³ØªØ¬Ùˆ Ø¯Ø± Ø¯Ø³ØªÙ‡â€ŒØ¨Ù†Ø¯ÛŒâ€ŒÙ‡Ø§..." />
-                <div class="mt-3 max-h-[340px] overflow-y-auto rounded-[22px] border border-white-light px-3 py-3 dark:border-[#1b2e4b]">
-                  <div v-if="visibleCategoryRows.length" class="space-y-1">
-                    <label
-                      v-for="row in visibleCategoryRows"
-                      :key="row.id"
-                      class="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white-light/40 dark:hover:bg-[#060818]"
-                      :style="{ paddingRight: `${0.75 + row.level * 1.25}rem` }"
-                    >
-                      <input type="checkbox" class="form-checkbox outline-primary" :checked="isCategoryChecked(row.id)" @change="toggleCategorySelection(row.id)" />
-                      <span class="min-w-0 flex-1">
-                        <span class="block truncate text-sm font-semibold text-black dark:text-white">{{ row.name }}</span>
-                        <span class="text-[11px] text-white-dark">{{ row.slug }}</span>
-                      </span>
-                    </label>
+              </div>
+
+              <div class="overflow-hidden rounded-[24px] border border-white-light/80 bg-white shadow-sm dark:border-[#1b2e4b] dark:bg-[#0b1321]">
+                <div class="flex flex-col gap-4 border-b border-white-light/80 bg-gradient-to-r from-white to-primary/5 px-5 py-5 dark:border-[#1b2e4b] dark:from-[#0b1321] dark:to-primary/10 lg:flex-row lg:items-start lg:justify-between">
+                  <div class="min-w-0">
+                    <label for="product-category-search" class="text-sm font-semibold text-black dark:text-white">دسته‌بندی محصولات</label>
+                    <p class="mt-1 text-xs leading-6 text-white-dark">از میان ساختار درختی دسته‌ها، مناسب‌ترین گزینه نهایی را برای محصول انتخاب کنید.</p>
                   </div>
-                  <div v-else class="rounded-xl border border-dashed border-white-light px-4 py-6 text-center text-sm text-white-dark dark:border-[#1b2e4b]">
-                    Ø¯Ø³ØªÙ‡â€ŒØ¨Ù†Ø¯ÛŒ Ù…Ø·Ø§Ø¨Ù‚ Ø¬Ø³ØªØ¬Ùˆ Ù¾ÛŒØ¯Ø§ Ù†Ø´Ø¯.
+                  <button
+                    v-if="form.categoryId"
+                    type="button"
+                    class="inline-flex shrink-0 items-center justify-center rounded-full border border-danger/20 bg-danger/5 px-3 py-2 text-xs font-semibold text-danger transition hover:bg-danger/10"
+                    @click="form.categoryId = ''"
+                  >
+                    پاک کردن انتخاب
+                  </button>
+                </div>
+
+                <div class="px-5 py-5">
+                  <input
+                    id="product-category-search"
+                    v-model.trim="categorySearch"
+                    type="text"
+                    class="form-input rounded-[16px] border-white bg-white-light/50 shadow-sm dark:border-[#1b2e4b] dark:bg-[#060818]"
+                    placeholder="جستجو در دسته‌بندی‌ها..."
+                  />
+
+                  <div class="mt-4 max-h-[340px] overflow-y-auto rounded-[20px] border border-white-light/80 bg-white-light/20 px-3 py-3 dark:border-[#1b2e4b] dark:bg-[#060818]/70">
+                    <div v-if="visibleCategoryRows.length" class="space-y-2">
+                      <label
+                        v-for="row in visibleCategoryRows"
+                        :key="row.id"
+                        class="group flex cursor-pointer items-center gap-3 rounded-[18px] border border-transparent bg-white/80 px-3 py-3 shadow-sm transition hover:border-primary/20 hover:bg-primary/5 dark:bg-[#0b1321]/80 dark:hover:bg-primary/10"
+                        :class="isCategoryChecked(row.id) ? 'border-primary/30 bg-primary/5 dark:bg-primary/10' : ''"
+                        :style="{ paddingRight: `${0.75 + row.level * 1.25}rem` }"
+                      >
+                        <input type="checkbox" class="form-checkbox outline-primary" :checked="isCategoryChecked(row.id)" @change="toggleCategorySelection(row.id)" />
+                        <span class="min-w-0 flex-1">
+                          <span class="block truncate text-sm font-semibold text-black dark:text-white">{{ row.name }}</span>
+                          <span class="mt-1 block text-[11px] text-white-dark">{{ row.slug }}</span>
+                        </span>
+                        <span class="rounded-full bg-white-light px-2 py-1 text-[10px] font-semibold text-white-dark dark:bg-[#111c33]">سطح {{ row.level + 1 }}</span>
+                      </label>
+                    </div>
+                    <div v-else class="rounded-[18px] border border-dashed border-white-light px-4 py-8 text-center text-sm text-white-dark dark:border-[#1b2e4b]">
+                      دسته‌بندی مطابق جستجو پیدا نشد.
+                    </div>
+                  </div>
+
+                  <div class="mt-4 rounded-[18px] border border-success/20 bg-success/5 px-4 py-4 dark:border-success/20">
+                    <div class="text-xs text-white-dark">انتخاب فعلی</div>
+                    <div class="mt-1 text-sm font-semibold text-black dark:text-white">{{ selectedCategoryLabel || 'هنوز دسته‌بندی انتخاب نشده است' }}</div>
+                    <div v-if="selectedCategoryTrail.length" class="mt-2 text-[11px] leading-6 text-white-dark">
+                      مسیر: {{ selectedCategoryTrail.join(' / ') }}
+                    </div>
                   </div>
                 </div>
-                <p v-if="selectedCategoryLabel" class="mt-2 text-xs text-success">Ø§Ù†ØªØ®Ø§Ø¨ ÙØ¹Ù„ÛŒ: {{ selectedCategoryLabel }}</p>
               </div>
-              <div>
-                <label for="product-category">دسته‌بندی</label>
-                <select id="product-category" v-model="form.categoryId" class="hidden">
-                  <option value="">یک دسته‌بندی انتخاب کنید</option>
-                  <option v-for="category in filteredCategories" :key="category.id" :value="category.id">{{ category.name }}</option>
-                </select>
-              </div>
-              <div>
-                <label for="product-brand">برند</label>
-                <select id="product-brand" v-model="form.brandId" class="form-select">
+
+              <div class="rounded-[24px] border border-white-light/80 bg-gradient-to-b from-white to-white-light/30 px-5 py-5 shadow-sm dark:border-[#1b2e4b] dark:from-[#0b1321] dark:to-[#09111e]">
+                <label for="product-brand" class="text-sm font-semibold text-black dark:text-white">برند</label>
+                <p class="mt-1 text-xs leading-6 text-white-dark">برند محصول را از بین موارد سازگار با نوع انتخاب‌شده مشخص کنید.</p>
+                <select id="product-brand" v-model="form.brandId" class="form-select mt-4 rounded-[16px] border-white bg-white/90 shadow-sm dark:border-[#1b2e4b] dark:bg-[#060818]">
                   <option value="">یک برند انتخاب کنید</option>
                   <option v-for="brand in filteredBrands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
                 </select>
-                <p v-if="form.brand && !form.brandId" class="mt-2 text-xs text-warning">Fallback brand: {{ form.brand }}</p>
+
+                <div class="mt-4 rounded-[18px] border border-white-light bg-white/80 px-4 py-4 text-sm shadow-sm dark:border-[#1b2e4b] dark:bg-[#060818]">
+                  <div class="text-xs text-white-dark">وضعیت برند</div>
+                  <div class="mt-1 font-semibold text-black dark:text-white">{{ selectedBrand?.name || 'برندی انتخاب نشده است' }}</div>
+                  <div v-if="form.brand && !form.brandId" class="mt-2 text-[11px] leading-5 text-warning">مقدار جایگزین فعلی: {{ form.brand }}</div>
+                </div>
               </div>
             </div>
 
@@ -260,7 +298,7 @@
             </div>
           </AdminFormSection>
 
-          <AdminFormSection title="رسانه‌ها" description="برای هر رسانه می‌توانید فایل جدید آپلود کنید یا از Media Library انتخاب کنید.">
+          <AdminFormSection title="رسانه‌ها" description="برای هر رسانه، فایل را فقط از طریق Media Library انتخاب کنید.">
             <template #icon>
               <IconGallery class="h-5 w-5" />
             </template>
@@ -281,17 +319,15 @@
                 </div>
                 <div class="mt-4 flex flex-wrap gap-2">
                   <button type="button" class="btn btn-outline-primary btn-sm" @click="openMediaPicker('model')">انتخاب از Media Library</button>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" @click="modelInput?.click()">آپلود فایل جدید</button>
                   <button v-if="modelDisplayName" type="button" class="btn btn-outline-danger btn-sm" @click="clearModelFile">حذف</button>
                 </div>
-                <input ref="modelInput" type="file" accept=".glb,.gltf,.obj,.usdz,.zip,model/*" class="hidden" @change="onModelSelected" />
               </div>
 
               <div class="rounded-[22px] border border-white-light p-4 dark:border-[#1b2e4b] xl:col-span-2">
                 <div class="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <div class="font-semibold text-black dark:text-white">گالری تصاویر</div>
-                    <div class="text-xs text-white-dark">می‌توانید فایل‌های آپلودی و آیتم‌های Media Library را با هم ترکیب کنید</div>
+                    <div class="text-xs text-white-dark">تصاویر گالری فقط از Media Library انتخاب می‌شوند</div>
                   </div>
                   <div class="rounded-full border border-white-light px-3 py-1 text-xs text-white-dark dark:border-[#1b2e4b]">
                     {{ galleryAssets.length }} آیتم
@@ -314,10 +350,8 @@
 
                 <div class="mt-4 flex flex-wrap gap-2">
                   <button type="button" class="btn btn-outline-primary btn-sm" @click="openMediaPicker('gallery')">انتخاب از Media Library</button>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" @click="galleryInput?.click()">آپلود چند فایل</button>
                   <button v-if="galleryAssets.length" type="button" class="btn btn-outline-danger btn-sm" @click="clearGalleryAssets">پاک کردن همه</button>
                 </div>
-                <input ref="galleryInput" type="file" accept="image/*" multiple class="hidden" @change="onGalleryFilesSelected" />
               </div>
             </div>
           </AdminFormSection>
@@ -383,10 +417,8 @@
             </div>
             <div class="mt-4 flex flex-wrap gap-2">
               <button type="button" class="btn btn-outline-primary btn-sm" @click="openMediaPicker('main')">انتخاب از Media Library</button>
-              <button type="button" class="btn btn-outline-secondary btn-sm" @click="mainImageInput?.click()">آپلود فایل جدید</button>
               <button v-if="mainImagePreview" type="button" class="btn btn-outline-danger btn-sm" @click="clearMainImage">حذف</button>
             </div>
-            <input ref="mainImageInput" type="file" accept="image/*" class="hidden" @change="onMainImageSelected" />
           </section>
         </aside>
       </div>
@@ -536,6 +568,7 @@ import type {
   ProductAttributeDataType,
   ProductAttributeOption,
   ProductFormPayload,
+  ProductListItem,
   ProductMeta,
   ProductStatus,
   ProductType,
@@ -546,6 +579,7 @@ import {
   filterCategoriesByType,
   formatCurrency,
   generateEnglishSlug,
+  mapProductToForm,
   productStatusOptions,
   productTypeOptions,
   slugify,
@@ -569,6 +603,17 @@ type CategoryTreeRow = {
   level: number
   children: CategoryTreeRow[]
 }
+
+const props = withDefaults(
+  defineProps<{
+    mode?: 'create' | 'edit'
+    productId?: string
+  }>(),
+  {
+    mode: 'create',
+    productId: '',
+  },
+)
 
 const MAX_SLUG_LENGTH = 16
 const SLUG_CHECK_DELAY = 600
@@ -594,9 +639,10 @@ const createEmptyMeta = (): ProductMeta => ({
   shareImageUrl: '',
 })
 
-const createEmptyAttributeRow = (): ProductAttributeFormRow => ({
+const createEmptyAttributeRow = (displayOrder = 0): ProductAttributeFormRow => ({
   id: crypto.randomUUID(),
   attributeId: '',
+  displayOrder,
   valueText: '',
   valueNumber: '',
   valueBoolean: false,
@@ -604,6 +650,12 @@ const createEmptyAttributeRow = (): ProductAttributeFormRow => ({
   valueMultiText: [],
   overrideUnit: '',
 })
+
+const normalizeAttributeDisplayOrders = (rows: ProductAttributeFormRow[]) =>
+  rows.map((row, index) => ({
+    ...row,
+    displayOrder: index,
+  }))
 
 const createEmptyReusableAttributeForm = () => ({
   name: '',
@@ -642,7 +694,7 @@ const form = reactive({
 const categories = ref<Category[]>([])
 const brands = ref<Brand[]>([])
 const reusableAttributes = ref<ReusableProductAttribute[]>([])
-const attributeRows = ref<ProductAttributeFormRow[]>([createEmptyAttributeRow()])
+const attributeRows = ref<ProductAttributeFormRow[]>([createEmptyAttributeRow(0)])
 const tagInput = ref('')
 const validationErrors = ref<string[]>([])
 const errorMessage = ref('')
@@ -661,9 +713,6 @@ const isCreateAttributeModalOpen = ref(false)
 const isCreatingAttribute = ref(false)
 const createAttributeForm = reactive(createEmptyReusableAttributeForm())
 const categorySearch = ref('')
-const mainImageInput = ref<HTMLInputElement | null>(null)
-const galleryInput = ref<HTMLInputElement | null>(null)
-const modelInput = ref<HTMLInputElement | null>(null)
 const mainImageFile = ref<File | null>(null)
 const mainImagePreview = ref('')
 const mainImageObjectUrl = ref('')
@@ -739,6 +788,22 @@ const checkedCategoryIds = computed(() => {
   return ids
 })
 const selectedCategoryLabel = computed(() => categoryLookup.value.get(form.categoryId)?.name || '')
+const selectedCategoryTrail = computed(() => {
+  if (!form.categoryId) return [] as string[]
+
+  const trail: string[] = []
+  let currentId = form.categoryId
+
+  while (currentId) {
+    const current = categoryLookup.value.get(currentId)
+    if (!current) break
+    trail.unshift(current.name)
+    currentId = current.parentId
+  }
+
+  return trail
+})
+const selectedProductTypeLabel = computed(() => productTypeOptions.find((item) => item.value === form.type)?.label || form.type)
 const visibleCategoryRows = computed<CategoryTreeRow[]>(() => {
   const query = categorySearch.value.trim().toLowerCase()
 
@@ -772,6 +837,13 @@ const visibleCategoryRows = computed<CategoryTreeRow[]>(() => {
 })
 const filteredBrands = computed(() => filterBrandsByProductType(brands.value, form.type))
 const selectedBrand = computed(() => brands.value.find((brand) => brand.id === form.brandId))
+const pageBadgeLabel = computed(() => (props.mode === 'edit' ? 'ویرایش محصول' : 'ایجاد محصول'))
+const pageTitle = computed(() => (props.mode === 'edit' ? 'ویرایش محصول' : 'افزودن محصول جدید'))
+const pageDescription = computed(() =>
+  props.mode === 'edit'
+    ? 'مشخصات محصول، رسانه‌ها و ترتیب نمایش ویژگی‌ها را در همین فرم ویرایش کنید.'
+    : 'فرم در چند بخش مجزا چیده شده تا اطلاعات پایه، محتوا، سئو، رسانه و ویژگی‌ها واضح‌تر ثبت شوند و صفحه شلوغ نشود.',
+)
 const shareImagePreview = computed(() => form.meta.shareImageUrl || '')
 const modelDisplayName = computed(() => {
   if (modelFile.value) return modelFile.value.name
@@ -795,13 +867,13 @@ const mediaPickerTitle = computed(() => {
 const mediaPickerDescription = computed(() => {
   switch (mediaPickerKind.value) {
     case 'gallery':
-      return 'می‌توانید چند تصویر را از Media Library انتخاب کنید یا در همان مودال فایل جدید آپلود کنید.'
+      return 'تصاویر گالری را از Media Library انتخاب کنید.'
     case 'model':
       return 'یک فایل مدل سه‌بعدی را انتخاب کنید.'
     case 'share':
       return 'برای share image بهتر است از Media Library استفاده شود.'
     default:
-      return 'یک تصویر را از Media Library انتخاب کنید یا مستقیماً از همان مودال آپلود کنید.'
+      return 'رسانه موردنظر را از Media Library انتخاب کنید.'
   }
 })
 const mediaPickerAllowedSections = computed<MediaSection[]>(() => {
@@ -947,44 +1019,6 @@ const mergeGalleryAssets = (items: GalleryAsset[]) => {
   galleryAssets.value = Array.from(map.values())
 }
 
-const onMainImageSelected = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (!file) return
-
-  form.existingMainImageUrl = ''
-  mainImageFile.value = file
-  resetMainImagePreview()
-  mainImageObjectUrl.value = URL.createObjectURL(file)
-  mainImagePreview.value = mainImageObjectUrl.value
-  input.value = ''
-}
-
-const onGalleryFilesSelected = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  const files = Array.from(input.files || [])
-  if (!files.length) return
-
-  const nextAssets = files.map<GalleryAsset>((file) => ({
-    id: crypto.randomUUID(),
-    name: file.name,
-    previewUrl: URL.createObjectURL(file),
-    file,
-  }))
-  mergeGalleryAssets(nextAssets)
-  input.value = ''
-}
-
-const onModelSelected = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (!file) return
-
-  modelFile.value = file
-  form.existingThreeDModelUrl = ''
-  input.value = ''
-}
-
 const openMediaPicker = (kind: MediaPickerKind) => {
   mediaPickerKind.value = kind
   isMediaPickerOpen.value = true
@@ -1047,6 +1081,83 @@ const loadBootData = async () => {
   }
 }
 
+const mapAssignmentsToAttributeRows = (attributes: ProductListItem['attributes']): ProductAttributeFormRow[] => {
+  if (!Array.isArray(attributes)) return [createEmptyAttributeRow(0)]
+
+  const sorted = [...attributes].sort((first, second) => {
+    const firstOrder = typeof first.displayOrder === 'number' ? first.displayOrder : attributes.indexOf(first)
+    const secondOrder = typeof second.displayOrder === 'number' ? second.displayOrder : attributes.indexOf(second)
+    return firstOrder - secondOrder
+  })
+
+  const rows = sorted.map((item, index) => {
+    const reusableAttribute = item.attributeId ? reusableAttributes.value.find((entry) => entry.id === item.attributeId) : undefined
+    const dataType = item.dataType || reusableAttribute?.dataType || 'text'
+
+    return {
+      id: crypto.randomUUID(),
+      attributeId: item.attributeId || '',
+      displayOrder: typeof item.displayOrder === 'number' ? item.displayOrder : index,
+      valueText: item.valueText ?? (dataType === 'select' ? String(item.valueText ?? '') : ''),
+      valueNumber: item.valueNumber === null || item.valueNumber === undefined ? '' : String(item.valueNumber),
+      valueBoolean: Boolean(item.valueBoolean),
+      valueJson: dataType === 'json' && item.valueJson !== undefined ? JSON.stringify(item.valueJson, null, 2) : '',
+      valueMultiText: dataType === 'multiselect' && Array.isArray(item.valueJson) ? item.valueJson.map((value) => String(value)) : [],
+      overrideUnit: item.overrideUnit || '',
+    } satisfies ProductAttributeFormRow
+  })
+
+  return normalizeAttributeDisplayOrders(rows.length ? rows : [createEmptyAttributeRow(0)])
+}
+
+const loadProduct = async () => {
+  if (props.mode !== 'edit' || !props.productId) return
+
+  const product = await productService.getAdminProduct(props.productId)
+  const mapped = mapProductToForm(product)
+
+  form.sku = mapped.sku
+  form.title = mapped.title
+  form.slug = mapped.slug
+  form.technicalCode = mapped.technicalCode
+  form.brandId = mapped.brandId || ''
+  form.brand = mapped.brand || ''
+  form.basePriceUSD = mapped.basePriceUSD
+  form.salePriceUSD = mapped.salePriceUSD === '' || mapped.salePriceUSD === undefined ? null : mapped.salePriceUSD
+  form.stock = mapped.stock
+  form.type = mapped.type
+  form.status = mapped.status
+  form.featured = mapped.featured
+  form.categoryId = mapped.categoryId || ''
+  form.tags = [...mapped.tags]
+  form.meta = {
+    ...createEmptyMeta(),
+    ...mapped.meta,
+  }
+  form.existingMainImageUrl = mapped.existingMainImageUrl || ''
+  form.existingThreeDModelUrl = mapped.existingThreeDModelUrl || ''
+
+  mainImageFile.value = null
+  mainImagePreview.value = mapped.existingMainImageUrl || ''
+  modelFile.value = null
+  categorySearch.value = ''
+  tagInput.value = ''
+  slugDraft.value = mapped.slug
+  slugTouched.value = true
+  slugGeneratedOnce.value = Boolean(mapped.slug)
+  slugCheckState.value = 'idle'
+
+  clearGalleryAssets()
+  galleryAssets.value = (mapped.existingGalleryUrls || []).map((url, index) => ({
+    id: `existing-${index}`,
+    name: url.split('/').pop() || `gallery-${index + 1}`,
+    previewUrl: url,
+    existingUrl: url,
+  }))
+
+  attributeRows.value = mapAssignmentsToAttributeRows(product.attributes)
+}
+
 const checkSlugAvailability = async (slug: string) => {
   const normalized = normalizeProductSlug(slug)
   if (!normalized) {
@@ -1056,7 +1167,10 @@ const checkSlugAvailability = async (slug: string) => {
 
   slugCheckState.value = 'checking'
   try {
-    const isAvailable = await productService.checkAdminProductSlug(normalized)
+    const isAvailable = await productService.checkAdminProductSlug(
+      normalized,
+      props.mode === 'edit' && props.productId ? props.productId : undefined,
+    )
     slugCheckState.value = isAvailable ? 'available' : 'taken'
   } catch {
     slugCheckState.value = 'idle'
@@ -1113,7 +1227,10 @@ const submitCreateAttribute = async () => {
     if (emptyRow) {
       emptyRow.attributeId = created.id
     } else {
-      attributeRows.value.push({ ...createEmptyAttributeRow(), attributeId: created.id })
+      attributeRows.value = normalizeAttributeDisplayOrders([
+        ...attributeRows.value,
+        { ...createEmptyAttributeRow(attributeRows.value.length), attributeId: created.id },
+      ])
     }
     closeCreateAttributeModal()
     await Swal.fire({ icon: 'success', title: 'موفق', text: 'ویژگی reusable ساخته شد', timer: 1400, showConfirmButton: false })
@@ -1127,13 +1244,19 @@ const submitCreateAttribute = async () => {
 const getReusableAttribute = (attributeId: string) => reusableAttributes.value.find((item) => item.id === attributeId)
 
 const buildAttributeAssignments = (): ProductAttributeAssignment[] => {
-  return attributeRows.value
+  return normalizeAttributeDisplayOrders(attributeRows.value)
     .filter((row) => row.attributeId)
     .map((row) => {
       const attribute = getReusableAttribute(row.attributeId)
       const base: ProductAttributeAssignment = {
         attributeId: row.attributeId,
+        displayOrder: row.displayOrder,
         overrideUnit: row.overrideUnit.trim() || undefined,
+        name: attribute?.name,
+        slug: attribute?.slug,
+        dataType: attribute?.dataType,
+        isVisible: attribute?.isVisible,
+        isFilterable: attribute?.isFilterable,
       }
 
       if (!attribute) return base
@@ -1194,13 +1317,13 @@ const validateAttributeRows = () => {
 
 const validateForm = () => {
   const errors: string[] = []
-  if (!form.sku.trim()) errors.push('SKU الزامی است')
+  if (props.mode === 'edit' && !form.sku.trim()) errors.push('SKU الزامی است')
   if (!form.title.trim()) errors.push('عنوان محصول الزامی است')
   if (!form.slug.trim()) errors.push('Slug الزامی است')
   if (form.slug.trim().length > MAX_SLUG_LENGTH) errors.push('Slug نمی‌تواند بیشتر از 16 کاراکتر باشد')
   if (slugCheckState.value === 'taken') errors.push('این اسلاگ قبلاً ثبت شده است')
-  if (!form.technicalCode.trim()) errors.push('Technical code الزامی است')
-  if (!form.brandId && !form.brand.trim()) errors.push('برند الزامی است')
+  if (props.mode === 'edit' && !form.technicalCode.trim()) errors.push('Technical code الزامی است')
+  if (props.mode === 'edit' && !form.brandId && !form.brand.trim()) errors.push('برند الزامی است')
   if (!form.categoryId) errors.push('دسته‌بندی محصول الزامی است')
   if (Number(form.basePriceUSD) < 0) errors.push('قیمت اصلی نمی‌تواند منفی باشد')
   if (form.salePriceUSD !== null && Number(form.salePriceUSD) < 0) errors.push('قیمت فروش نمی‌تواند منفی باشد')
@@ -1236,7 +1359,7 @@ const resetForm = () => {
   slugGeneratedOnce.value = false
   slugCheckState.value = 'idle'
   tagInput.value = ''
-  attributeRows.value = [createEmptyAttributeRow()]
+  attributeRows.value = [createEmptyAttributeRow(0)]
   validationErrors.value = []
   errorMessage.value = ''
   slugTouched.value = false
@@ -1251,8 +1374,6 @@ const submitForm = async () => {
     sku: form.sku.trim(),
     title: form.title.trim(),
     slug: normalizeProductSlug(form.slug.trim()),
-    summary: form.meta.shortDescription.trim(),
-    description: form.meta.description.trim(),
     meta: {
       ...form.meta,
       shortDescription: form.meta.shortDescription.trim(),
@@ -1272,7 +1393,8 @@ const submitForm = async () => {
     featured: form.featured,
     type: form.type,
     status: form.status,
-    categoryId: form.categoryId || undefined,
+    primaryCategoryId: form.categoryId || undefined,
+    categoryIds: form.categoryId ? [form.categoryId] : [],
     tags: [...form.tags],
     attributes: buildAttributeAssignments(),
     existingMainImageUrl: form.existingMainImageUrl || undefined,
@@ -1285,7 +1407,10 @@ const submitForm = async () => {
 
   isSubmitting.value = true
   try {
-    const response = await productService.createAdminProduct(payload)
+    const response =
+      props.mode === 'edit' && props.productId
+        ? await productService.updateAdminProduct(props.productId, payload)
+        : await productService.createAdminProduct(payload)
     await Swal.fire({ icon: 'success', title: 'محصول ایجاد شد', text: 'محصول با موفقیت ذخیره شد', timer: 1500, showConfirmButton: false })
     router.push(`/admin/products/${response.id}`)
   } catch (error) {
@@ -1349,6 +1474,13 @@ watch(
 
 onMounted(async () => {
   await loadBootData()
+  if (!errorMessage.value) {
+    try {
+      await loadProduct()
+    } catch (error) {
+      errorMessage.value = extractApiErrorMessage(error, 'بارگذاری اطلاعات محصول انجام نشد')
+    }
+  }
 })
 
 onBeforeUnmount(() => {

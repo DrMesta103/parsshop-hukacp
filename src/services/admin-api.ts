@@ -82,14 +82,14 @@ export const buildProductFormData = (payload: ProductFormPayload): FormData => {
   formData.append('sku', payload.sku)
   formData.append('title', payload.title)
   formData.append('slug', payload.slug)
-  formData.append('summary', payload.summary ?? normalizedMeta.shortDescription)
-  formData.append('description', payload.description ?? normalizedMeta.description)
   formData.append('meta', JSON.stringify(normalizedMeta))
   formData.append('technicalCode', payload.technicalCode)
   if (payload.brandId !== undefined) {
     formData.append('brandId', payload.brandId)
   }
-  formData.append('brand', payload.brand)
+  if (payload.brand) {
+    formData.append('brand', payload.brand)
+  }
   formData.append('basePriceUSD', String(payload.basePriceUSD))
   formData.append('stock', String(payload.stock))
   formData.append('featured', String(payload.featured))
@@ -97,14 +97,15 @@ export const buildProductFormData = (payload: ProductFormPayload): FormData => {
   formData.append('status', payload.status)
   formData.append('attributes', JSON.stringify(payload.attributes || []))
   formData.append('tags', JSON.stringify(payload.tags || []))
+  formData.append('categoryIds', JSON.stringify(payload.categoryIds || []))
   formData.append('existingGalleryUrls', JSON.stringify(payload.existingGalleryUrls || []))
 
   if (payload.salePriceUSD !== undefined && payload.salePriceUSD !== null) {
     formData.append('salePriceUSD', String(payload.salePriceUSD))
   }
 
-  if (payload.categoryId) {
-    formData.append('categoryId', payload.categoryId)
+  if (payload.primaryCategoryId) {
+    formData.append('primaryCategoryId', payload.primaryCategoryId)
   }
 
   if (payload.existingMainImageUrl !== undefined) {

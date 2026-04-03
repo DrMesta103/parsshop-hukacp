@@ -249,6 +249,7 @@ const menuSections: MenuSection[] = [
         children: [
           { label: 'تنظیمات عمومی', to: '/admin/settings' },
           { label: 'درگاه های پرداخت', to: '/admin/settings/payment-gateways' },
+          { label: 'فیش های بانکی ارسالی', to: '/admin/payments/bank-slips' },
           { label: 'روش های ارسال', to: '/admin/settings/shipping-methods' },
           { label: 'تنظیمات سئو', to: '/admin/settings/seo' },
         ],

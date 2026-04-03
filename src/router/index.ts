@@ -168,7 +168,24 @@ const router = createRouter({
         createAdminPlaceholderRoute('support/product-questions', 'AdminSupportProductQuestions', 'سوالات محصولات', 'مدیریت پرسش و پاسخ های ثبت شده برای کالاها'),
         createAdminPlaceholderRoute('users/roles', 'AdminUsersRoles', 'نقش ها و دسترسی ها', 'مدیریت نقش های سازمانی و سطح دسترسی کاربران پنل'),
         createAdminPlaceholderRoute('users/activity-logs', 'AdminUsersActivityLogs', 'لاگ فعالیت ها', 'مشاهده فعالیت های مدیران و اپراتورهای پنل'),
-        createAdminPlaceholderRoute('settings/payment-gateways', 'AdminSettingsPaymentGateways', 'درگاه های پرداخت', 'تنظیم و مدیریت درگاه های پرداخت فعال'),
+        {
+          path: 'settings/payment-gateways',
+          name: 'AdminSettingsPaymentGateways',
+          component: () => import('@/views/admin/AdminSettingsPaymentGateways.vue'),
+          meta: {
+            title: 'درگاه های پرداخت',
+            description: 'تنظیم و مدیریت درگاه های پرداخت فعال',
+          },
+        },
+        {
+          path: 'payments/bank-slips',
+          name: 'AdminPaymentBankSlips',
+          component: () => import('@/views/admin/AdminPaymentBankSlips.vue'),
+          meta: {
+            title: 'فیش های بانکی ارسالی',
+            description: 'بررسی و تایید یا رد فیش های بانکی ثبت شده',
+          },
+        },
         createAdminPlaceholderRoute('settings/shipping-methods', 'AdminSettingsShippingMethods', 'روش های ارسال', 'مدیریت روش های ارسال، پیک و پست'),
         createAdminPlaceholderRoute('settings/seo', 'AdminSettingsSeo', 'تنظیمات سئو', 'مدیریت تنظیمات فنی و محتوایی سئو فروشگاه'),
         {
