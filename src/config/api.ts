@@ -1,4 +1,4 @@
-const DEFAULT_API_ORIGIN = 'https://parsshop-back.mugit.ir'
+const DEFAULT_API_ORIGIN = 'https://apiback.marjayadak.com'
 const DEFAULT_API_PREFIX = '/api'
 
 const normalizeBaseUrl = (value: string) => {
