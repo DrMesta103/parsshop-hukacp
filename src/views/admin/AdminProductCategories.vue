@@ -231,6 +231,18 @@
               />
               <button type="button" class="btn btn-outline-secondary !px-4" @click="generateSlug">تولید</button>
             </div>
+            <div v-if="suggestedSlugs.length > 0" class="mt-2 flex flex-wrap gap-2">
+              <span class="text-xs text-danger mt-1">پیشنهادها:</span>
+              <button
+                v-for="slug in suggestedSlugs"
+                :key="slug"
+                type="button"
+                class="badge bg-primary/20 text-primary cursor-pointer hover:bg-primary hover:text-white transition"
+                @click="applySuggestedSlug(slug)"
+              >
+                {{ slug }}
+              </button>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -354,6 +366,13 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const pageSizeOptions = [10, 20, 30, 50]
 const categoryImagePreview = ref('')
+const suggestedSlugs = ref<string[]>([])
+
+const applySuggestedSlug = (slug: string) => {
+  form.slug = slug
+  suggestedSlugs.value = []
+  formErrorMessage.value = ''
+}
 
 const form = reactive<CategoryPayload>({
   name: '',
@@ -593,6 +612,7 @@ const resetForm = () => {
   form.image = null
   categoryImagePreview.value = ''
   formErrorMessage.value = ''
+  suggestedSlugs.value = []
 }
 
 const closeModal = () => {
@@ -708,7 +728,16 @@ const submitCategory = async () => {
     resetForm()
     await loadCategories()
   } catch (error) {
-    formErrorMessage.value = extractApiErrorMessage(error, 'ذخیره دسته بندی انجام نشد')
+    const msg = extractApiErrorMessage(error, 'ذخیره دسته بندی انجام نشد')
+    formErrorMessage.value = msg
+    if (msg.includes('اسلاگ')) {
+      const baseSlug = form.slug || 'category'
+      suggestedSlugs.value = [
+        `${baseSlug}-1`,
+        `${baseSlug}-${Math.floor(10 + Math.random() * 90)}`,
+        `${baseSlug}-${Date.now().toString().slice(-4)}`
+      ]
+    }
   } finally {
     isSubmitting.value = false
   }
