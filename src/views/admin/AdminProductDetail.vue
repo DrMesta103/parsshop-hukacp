@@ -139,7 +139,7 @@
               </div>
               <div class="flex items-center justify-between gap-4">
                 <span class="text-white-dark">دسته بندی</span>
-                <span class="font-semibold text-black dark:text-white">{{ product.category?.name || '-' }}</span>
+                <span class="font-semibold text-black dark:text-white">{{ product.primaryCategory?.name || product.category?.name || '-' }}</span>
               </div>
               <div class="flex items-center justify-between gap-4">
                 <span class="text-white-dark">موجودی</span>

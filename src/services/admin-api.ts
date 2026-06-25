@@ -82,9 +82,11 @@ export const buildProductFormData = (payload: ProductFormPayload): FormData => {
   formData.append('sku', payload.sku)
   formData.append('title', payload.title)
   formData.append('slug', payload.slug)
+  formData.append('summary', payload.meta?.shortDescription ?? payload.summary ?? '')
+  formData.append('description', payload.meta?.description ?? payload.description ?? '')
   formData.append('meta', JSON.stringify(normalizedMeta))
   formData.append('technicalCode', payload.technicalCode)
-  if (payload.brandId !== undefined) {
+  if (payload.brandId !== undefined && String(payload.brandId).trim() !== '') {
     formData.append('brandId', payload.brandId)
   }
   if (payload.brand) {
@@ -104,8 +106,9 @@ export const buildProductFormData = (payload: ProductFormPayload): FormData => {
     formData.append('salePriceUSD', String(payload.salePriceUSD))
   }
 
-  if (payload.primaryCategoryId) {
-    formData.append('primaryCategoryId', payload.primaryCategoryId)
+  if (payload.primaryCategoryId !== undefined) {
+    formData.append('primaryCategoryId', payload.primaryCategoryId || '')
+    formData.append('categoryId', payload.primaryCategoryId || '')
   }
 
   if (payload.existingMainImageUrl !== undefined) {

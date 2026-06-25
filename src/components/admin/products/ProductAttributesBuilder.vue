@@ -31,12 +31,12 @@
         >
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
-              <div class="min-h-[1.25rem] text-sm font-semibold text-black dark:text-white">{{ getAttribute(row.attributeId)?.name || '' }}</div>
+              <div class="min-h-[1.25rem] text-sm font-semibold text-black dark:text-white">{{ getAttribute(row.attributeId)?.name || row.customKey || '' }}</div>
               <span class="badge bg-dark/10 text-dark dark:bg-white/10 dark:text-white">ترتیب {{ row.displayOrder }}</span>
               <span v-if="index < 2" class="badge bg-success/15 text-success">نمایش در لیست</span>
             </div>
             <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-white-dark">
-              <span v-if="getAttribute(row.attributeId)?.name" class="truncate">{{ getAttribute(row.attributeId)?.name }}</span>
+              <span v-if="getAttribute(row.attributeId)?.name || row.customKey" class="truncate">{{ getAttribute(row.attributeId)?.name || row.customKey }}</span>
               <span v-if="summaryUnit(row)">واحد: {{ summaryUnit(row) }}</span>
               <span v-if="summaryValue(row)">مقدار: {{ summaryValue(row) }}</span>
             </div>
@@ -46,7 +46,7 @@
 
         <div v-if="isRowOpen(row.id)" class="border-t border-white-light/80 px-4 py-4 dark:border-[#1b2e4b]">
           <div class="mb-4 flex items-center justify-between gap-3">
-            <div class="text-xs text-white-dark">{{ getAttribute(row.attributeId)?.slug || '' }}</div>
+            <div class="text-xs text-white-dark">{{ getAttribute(row.attributeId)?.slug || row.customKey || '' }}</div>
             <div class="flex flex-wrap items-center gap-2">
               <button type="button" class="btn btn-outline-secondary btn-sm !px-2.5 text-[11px]" :disabled="index === 0" @click.stop="moveRow(index, -1)">↑</button>
               <button type="button" class="btn btn-outline-secondary btn-sm !px-2.5 text-[11px]" :disabled="index === rows.length - 1" @click.stop="moveRow(index, 1)">↓</button>

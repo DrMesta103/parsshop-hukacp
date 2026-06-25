@@ -80,7 +80,7 @@
             <img :src="product.mainImageUrl || fallbackProductImage" alt="product" class="h-56 w-full object-cover" />
             <div class="space-y-4 p-5">
               <div class="flex items-center gap-2">
-                <span v-if="product.category?.name" class="badge bg-primary/15 text-primary">{{ product.category.name }}</span>
+                <span v-if="product.primaryCategory?.name" class="badge bg-primary/15 text-primary">{{ product.primaryCategory.name }}</span>
                 <span v-if="product.featured" class="badge bg-warning/15 text-warning">ویژه</span>
               </div>
               <div>

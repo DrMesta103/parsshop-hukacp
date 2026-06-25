@@ -186,7 +186,15 @@ const router = createRouter({
             description: 'بررسی و تایید یا رد فیش های بانکی ثبت شده',
           },
         },
-        createAdminPlaceholderRoute('settings/shipping-methods', 'AdminSettingsShippingMethods', 'روش های ارسال', 'مدیریت روش های ارسال، پیک و پست'),
+        {
+          path: 'settings/shipping-methods',
+          name: 'AdminSettingsShippingMethods',
+          component: () => import('@/views/admin/AdminCheckoutShippingMethods.vue'),
+          meta: {
+            title: 'روش های ارسال',
+            description: 'مدیریت روش های ارسال checkout و ترتیب نمایش آن ها',
+          },
+        },
         createAdminPlaceholderRoute('settings/seo', 'AdminSettingsSeo', 'تنظیمات سئو', 'مدیریت تنظیمات فنی و محتوایی سئو فروشگاه'),
         {
           path: 'products/:id',

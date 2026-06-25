@@ -95,7 +95,7 @@
                     <div class="mt-1 flex flex-wrap items-center gap-2">
                       <span class="badge bg-info/15 text-info">{{ product.type }}</span>
                       <span v-if="product.featured" class="badge bg-warning/15 text-warning">ویژه</span>
-                      <span class="text-xs text-white-dark">{{ product.category?.name || 'بدون دسته بندی' }}</span>
+                      <span class="text-xs text-white-dark">{{ product.primaryCategory?.name || product.category?.name || 'بدون دسته بندی' }}</span>
                     </div>
                   </div>
                 </div>

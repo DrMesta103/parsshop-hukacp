@@ -95,7 +95,7 @@ export const mapProductToForm = (product: ProductListItem): ProductFormPayload =
   featured: product.featured,
   type: product.type,
   status: product.status,
-  categoryId: product.category?.id,
+  categoryId: product.primaryCategory?.id || product.primaryCategoryId || product.category?.id || product.categoryIds?.[0] || product.categories?.[0]?.id,
   attributes: normalizeAttributes(product.attributes),
   tags: [...(product.tags || [])],
   existingMainImageUrl: product.mainImageUrl || '',

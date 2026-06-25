@@ -12,6 +12,20 @@
       </div>
     </div>
 
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <router-link to="/admin/settings/shipping-methods" class="panel transition hover:-translate-y-0.5 hover:border-primary/40">
+        <div class="text-xs text-primary">Checkout</div>
+        <div class="mt-2 text-lg font-semibold text-black dark:text-white">Shipping Methods</div>
+        <p class="mt-2 text-sm text-white-dark">مدیریت روش‌های ارسال، وضعیت فعال/غیرفعال و ترتیب نمایش در checkout.</p>
+      </router-link>
+
+      <router-link to="/admin/settings/payment-gateways" class="panel transition hover:-translate-y-0.5 hover:border-primary/40">
+        <div class="text-xs text-primary">Payments</div>
+        <div class="mt-2 text-lg font-semibold text-black dark:text-white">Payment Gateways</div>
+        <p class="mt-2 text-sm text-white-dark">هماهنگی تنظیمات پرداخت با preview checkout و روش‌های قابل انتخاب کاربر.</p>
+      </router-link>
+    </div>
+
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.85fr)]">
       <div class="panel">
         <div class="mb-5 flex items-start justify-between gap-4">

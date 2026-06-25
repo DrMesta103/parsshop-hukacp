@@ -1,6 +1,7 @@
 export interface ProductAttributeFormRow {
   id: string
   attributeId: string
+  customKey?: string
   displayOrder: number
   valueText: string
   valueNumber: string

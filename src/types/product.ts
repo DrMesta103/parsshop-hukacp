@@ -2,7 +2,7 @@ export type ProductStatus = 'draft' | 'published' | 'archived'
 export type ProductType = 'Industrial' | 'Automotive'
 export type ProductAttributeDataType = 'text' | 'number' | 'boolean' | 'select' | 'multiselect' | 'json'
 
-export type ProductAttributes = Record<string, string | number | boolean | null>
+export type ProductAttributes = Record<string, string | number | boolean | null | unknown[] | Record<string, unknown>>
 
 export interface ProductMeta {
   shortDescription: string
@@ -141,6 +141,10 @@ export interface ProductListItem {
   averageRating: number
   reviewsCount: number
   category?: Category | null
+  categories?: Category[]
+  categoryIds?: string[]
+  primaryCategory?: Category | null
+  primaryCategoryId?: string | null
   createdAt?: string
   updatedAt?: string
 }

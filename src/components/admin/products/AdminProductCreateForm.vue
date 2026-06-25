@@ -145,7 +145,7 @@
                     v-if="form.categoryId"
                     type="button"
                     class="inline-flex shrink-0 items-center justify-center rounded-full border border-danger/20 bg-danger/5 px-3 py-2 text-xs font-semibold text-danger transition hover:bg-danger/10"
-                    @click="form.categoryId = ''"
+                    @click="form.categoryId = ''; hasCategorySelectionChanged = true"
                   >
                     پاک کردن انتخاب
                   </button>
@@ -565,6 +565,7 @@ import type {
   Category,
   CreateReusableProductAttributePayload,
   ProductAttributeAssignment,
+  ProductAttributes,
   ProductAttributeDataType,
   ProductAttributeOption,
   ProductFormPayload,
@@ -642,6 +643,7 @@ const createEmptyMeta = (): ProductMeta => ({
 const createEmptyAttributeRow = (displayOrder = 0): ProductAttributeFormRow => ({
   id: crypto.randomUUID(),
   attributeId: '',
+  customKey: '',
   displayOrder,
   valueText: '',
   valueNumber: '',
@@ -721,6 +723,7 @@ const galleryAssets = ref<GalleryAsset[]>([])
 const isMediaPickerOpen = ref(false)
 const mediaPickerKind = ref<MediaPickerKind>('main')
 const baseInfoTab = ref<'technical' | 'categories' | 'pricing' | 'other'>('technical')
+const originalAttributesMode = ref<'array' | 'object'>('array')
 
 const baseInfoTabs = [
   { value: 'technical', label: 'اطلاعات فنی و انبار' },
@@ -909,11 +912,66 @@ const mediaPickerSelectedUrls = computed(() => {
   }
 })
 const isAttributeOptionsVisible = computed(() => createAttributeForm.dataType === 'select' || createAttributeForm.dataType === 'multiselect')
+const originalCategoryIds = ref<string[]>([])
+const originalPrimaryCategoryId = ref('')
+const hasCategorySelectionChanged = ref(false)
 
 const productStatusLabel = (value: ProductStatus) => productStatusOptions.find((item) => item.value === value)?.label || value
 const isCategoryChecked = (categoryId: string) => checkedCategoryIds.value.has(categoryId)
 const toggleCategorySelection = (categoryId: string) => {
+  hasCategorySelectionChanged.value = true
   form.categoryId = form.categoryId === categoryId ? '' : categoryId
+}
+
+const inferAttributeDataType = (value: unknown): ProductAttributeDataType => {
+  if (typeof value === 'number') return 'number'
+  if (typeof value === 'boolean') return 'boolean'
+  if (Array.isArray(value)) return 'multiselect'
+  if (value && typeof value === 'object') return 'json'
+  return 'text'
+}
+
+const toAttributeRowsFromObject = (attributes: Record<string, unknown>) => {
+  const entries = Object.entries(attributes)
+  if (!entries.length) return [createEmptyAttributeRow(0)]
+
+  const rows = entries.map(([key, rawValue], index) => {
+    const reusableAttribute =
+      reusableAttributes.value.find((entry) => entry.slug === key) ||
+      reusableAttributes.value.find((entry) => entry.name === key) ||
+      reusableAttributes.value.find((entry) => entry.id === key)
+
+    const dataType = reusableAttribute?.dataType || inferAttributeDataType(rawValue)
+    const row = createEmptyAttributeRow(index)
+    row.attributeId = reusableAttribute?.id || ''
+    row.customKey = key
+    row.displayOrder = index
+
+    if (dataType === 'number') {
+      row.valueNumber = rawValue === null || rawValue === undefined ? '' : String(rawValue)
+      return row
+    }
+
+    if (dataType === 'boolean') {
+      row.valueBoolean = Boolean(rawValue)
+      return row
+    }
+
+    if (dataType === 'json') {
+      row.valueJson = rawValue === null || rawValue === undefined ? '' : JSON.stringify(rawValue, null, 2)
+      return row
+    }
+
+    if (dataType === 'multiselect') {
+      row.valueMultiText = Array.isArray(rawValue) ? rawValue.map((value) => String(value)) : []
+      return row
+    }
+
+    row.valueText = rawValue === null || rawValue === undefined ? '' : String(rawValue)
+    return row
+  })
+
+  return normalizeAttributeDisplayOrders(rows)
 }
 
 const normalizeProductSlug = (value: string) => slugify(value).slice(0, MAX_SLUG_LENGTH).replace(/-+$/g, '').replace(/^-|-$/g, '')
@@ -1082,7 +1140,11 @@ const loadBootData = async () => {
 }
 
 const mapAssignmentsToAttributeRows = (attributes: ProductListItem['attributes']): ProductAttributeFormRow[] => {
-  if (!Array.isArray(attributes)) return [createEmptyAttributeRow(0)]
+  if (!attributes) return [createEmptyAttributeRow(0)]
+
+  if (!Array.isArray(attributes)) {
+    return toAttributeRowsFromObject(attributes as Record<string, unknown>)
+  }
 
   const sorted = [...attributes].sort((first, second) => {
     const firstOrder = typeof first.displayOrder === 'number' ? first.displayOrder : attributes.indexOf(first)
@@ -1097,6 +1159,7 @@ const mapAssignmentsToAttributeRows = (attributes: ProductListItem['attributes']
     return {
       id: crypto.randomUUID(),
       attributeId: item.attributeId || '',
+      customKey: item.slug || item.name || '',
       displayOrder: typeof item.displayOrder === 'number' ? item.displayOrder : index,
       valueText: item.valueText ?? (dataType === 'select' ? String(item.valueText ?? '') : ''),
       valueNumber: item.valueNumber === null || item.valueNumber === undefined ? '' : String(item.valueNumber),
@@ -1115,6 +1178,15 @@ const loadProduct = async () => {
 
   const product = await productService.getAdminProduct(props.productId)
   const mapped = mapProductToForm(product)
+  originalAttributesMode.value = Array.isArray(product.attributes) ? 'array' : 'object'
+  const derivedCategoryIds = Array.isArray(product.categoryIds)
+    ? product.categoryIds.filter(Boolean)
+    : Array.isArray(product.categories)
+      ? product.categories.map((item) => item.id).filter(Boolean)
+      : mapped.categoryId
+        ? [mapped.categoryId]
+        : []
+  const derivedPrimaryCategoryId = product.primaryCategoryId || mapped.categoryId || derivedCategoryIds[0] || ''
 
   form.sku = mapped.sku
   form.title = mapped.title
@@ -1128,7 +1200,7 @@ const loadProduct = async () => {
   form.type = mapped.type
   form.status = mapped.status
   form.featured = mapped.featured
-  form.categoryId = mapped.categoryId || ''
+  form.categoryId = derivedPrimaryCategoryId
   form.tags = [...mapped.tags]
   form.meta = {
     ...createEmptyMeta(),
@@ -1146,6 +1218,9 @@ const loadProduct = async () => {
   slugTouched.value = true
   slugGeneratedOnce.value = Boolean(mapped.slug)
   slugCheckState.value = 'idle'
+  originalCategoryIds.value = derivedCategoryIds
+  originalPrimaryCategoryId.value = derivedPrimaryCategoryId
+  hasCategorySelectionChanged.value = false
 
   clearGalleryAssets()
   galleryAssets.value = (mapped.existingGalleryUrls || []).map((url, index) => ({
@@ -1243,8 +1318,39 @@ const submitCreateAttribute = async () => {
 
 const getReusableAttribute = (attributeId: string) => reusableAttributes.value.find((item) => item.id === attributeId)
 
-const buildAttributeAssignments = (): ProductAttributeAssignment[] => {
-  return normalizeAttributeDisplayOrders(attributeRows.value)
+const buildAttributePayload = (): ProductAttributes | ProductAttributeAssignment[] => {
+  const rows = normalizeAttributeDisplayOrders(attributeRows.value)
+
+  if (originalAttributesMode.value === 'object') {
+    return rows.reduce<ProductAttributes>((result, row) => {
+      const attribute = getReusableAttribute(row.attributeId)
+      const key = row.customKey?.trim() || attribute?.slug?.trim() || attribute?.name?.trim() || row.attributeId?.trim()
+      if (!key) return result
+
+      const dataType = attribute?.dataType || inferAttributeDataType(row.valueJson || row.valueNumber || row.valueText)
+      if (dataType === 'number') {
+        result[key] = row.valueNumber === '' ? '' : Number(row.valueNumber)
+        return result
+      }
+      if (dataType === 'boolean') {
+        result[key] = row.valueBoolean
+        return result
+      }
+      if (dataType === 'json') {
+        result[key] = row.valueJson.trim() ? JSON.parse(row.valueJson) : null
+        return result
+      }
+      if (dataType === 'multiselect') {
+        result[key] = [...row.valueMultiText]
+        return result
+      }
+
+      result[key] = row.valueText.trim()
+      return result
+    }, {})
+  }
+
+  return rows
     .filter((row) => row.attributeId)
     .map((row) => {
       const attribute = getReusableAttribute(row.attributeId)
@@ -1281,29 +1387,38 @@ const validateAttributeRows = () => {
   const seenIds = new Set<string>()
 
   attributeRows.value.forEach((row, index) => {
-    if (!row.attributeId) return
+    if (!row.attributeId && !row.customKey?.trim()) return
 
-    if (seenIds.has(row.attributeId)) {
+    const uniqueKey = row.attributeId || row.customKey || `row-${index}`
+
+    if (seenIds.has(uniqueKey)) {
       errors.push(`ویژگی تکراری در ردیف ${index + 1} مجاز نیست`)
       return
     }
-    seenIds.add(row.attributeId)
+    seenIds.add(uniqueKey)
 
     const attribute = getReusableAttribute(row.attributeId)
-    if (!attribute) {
+    if (!attribute && !row.customKey?.trim()) {
       errors.push(`ویژگی ردیف ${index + 1} در لیست reusable پیدا نشد`)
       return
     }
 
-    if ((attribute.dataType === 'text' || attribute.dataType === 'select') && !row.valueText.trim()) {
+    if (!attribute && row.customKey?.trim()) {
+      return
+    }
+
+    const resolvedAttribute = attribute
+    if (!resolvedAttribute) return
+
+    if ((resolvedAttribute.dataType === 'text' || resolvedAttribute.dataType === 'select') && !row.valueText.trim()) {
       errors.push(`مقدار ویژگی ردیف ${index + 1} الزامی است`)
     }
 
-    if (attribute.dataType === 'number' && row.valueNumber !== '' && Number.isNaN(Number(row.valueNumber))) {
+    if (resolvedAttribute.dataType === 'number' && row.valueNumber !== '' && Number.isNaN(Number(row.valueNumber))) {
       errors.push(`مقدار عددی ردیف ${index + 1} معتبر نیست`)
     }
 
-    if (attribute.dataType === 'json' && row.valueJson.trim()) {
+    if (resolvedAttribute.dataType === 'json' && row.valueJson.trim()) {
       try {
         JSON.parse(row.valueJson)
       } catch {
@@ -1349,6 +1464,9 @@ const resetForm = () => {
   form.status = 'draft'
   form.featured = false
   form.categoryId = ''
+  originalCategoryIds.value = []
+  originalPrimaryCategoryId.value = ''
+  hasCategorySelectionChanged.value = false
   categorySearch.value = ''
   form.tags = []
   form.meta = createEmptyMeta()
@@ -1360,6 +1478,7 @@ const resetForm = () => {
   slugCheckState.value = 'idle'
   tagInput.value = ''
   attributeRows.value = [createEmptyAttributeRow(0)]
+  originalAttributesMode.value = 'array'
   validationErrors.value = []
   errorMessage.value = ''
   slugTouched.value = false
@@ -1369,6 +1488,19 @@ const submitForm = async () => {
   validationErrors.value = validateForm()
   errorMessage.value = ''
   if (validationErrors.value.length) return
+
+  const resolvedPrimaryCategoryId = hasCategorySelectionChanged.value
+    ? form.categoryId || undefined
+    : originalPrimaryCategoryId.value || form.categoryId || undefined
+  const resolvedCategoryIds = hasCategorySelectionChanged.value
+    ? form.categoryId
+      ? [form.categoryId]
+      : []
+    : originalCategoryIds.value.length
+      ? [...originalCategoryIds.value]
+      : form.categoryId
+        ? [form.categoryId]
+        : []
 
   const payload: ProductFormPayload = {
     sku: form.sku.trim(),
@@ -1385,7 +1517,7 @@ const submitForm = async () => {
       shareImageUrl: form.meta.shareImageUrl.trim(),
     },
     technicalCode: form.technicalCode.trim(),
-    brandId: form.brandId ?? '',
+    brandId: form.brandId || undefined,
     brand: selectedBrand.value?.name || form.brand.trim(),
     basePriceUSD: Number(form.basePriceUSD),
     salePriceUSD: form.salePriceUSD === null ? null : Number(form.salePriceUSD),
@@ -1393,10 +1525,10 @@ const submitForm = async () => {
     featured: form.featured,
     type: form.type,
     status: form.status,
-    primaryCategoryId: form.categoryId || undefined,
-    categoryIds: form.categoryId ? [form.categoryId] : [],
+    primaryCategoryId: resolvedPrimaryCategoryId,
+    categoryIds: resolvedCategoryIds,
     tags: [...form.tags],
-    attributes: buildAttributeAssignments(),
+    attributes: buildAttributePayload(),
     existingMainImageUrl: form.existingMainImageUrl || undefined,
     existingGalleryUrls: galleryAssets.value.map((item) => item.existingUrl).filter(Boolean) as string[],
     existingThreeDModelUrl: form.existingThreeDModelUrl || undefined,
@@ -1411,7 +1543,13 @@ const submitForm = async () => {
       props.mode === 'edit' && props.productId
         ? await productService.updateAdminProduct(props.productId, payload)
         : await productService.createAdminProduct(payload)
-    await Swal.fire({ icon: 'success', title: 'محصول ایجاد شد', text: 'محصول با موفقیت ذخیره شد', timer: 1500, showConfirmButton: false })
+    await Swal.fire({
+      icon: 'success',
+      title: props.mode === 'edit' ? 'محصول بروزرسانی شد' : 'محصول ایجاد شد',
+      text: props.mode === 'edit' ? 'تغییرات محصول با موفقیت ذخیره شد' : 'محصول با موفقیت ذخیره شد',
+      timer: 1500,
+      showConfirmButton: false,
+    })
     router.push(`/admin/products/${response.id}`)
   } catch (error) {
     errorMessage.value = extractApiErrorMessage(error, 'ذخیره محصول انجام نشد')

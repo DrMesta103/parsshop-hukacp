@@ -80,7 +80,7 @@
         <div class="space-y-6">
           <div class="panel">
             <div class="mb-4 flex flex-wrap items-center gap-2">
-              <span v-if="product.category?.name" class="badge bg-primary/15 text-primary">{{ product.category.name }}</span>
+              <span v-if="product.primaryCategory?.name" class="badge bg-primary/15 text-primary">{{ product.primaryCategory.name }}</span>
               <span v-if="product.featured" class="badge bg-warning/15 text-warning">محصول ویژه</span>
               <span class="badge bg-info/15 text-info">{{ product.type }}</span>
             </div>
