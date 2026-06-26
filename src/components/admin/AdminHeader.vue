@@ -12,7 +12,7 @@
 
         <div class="min-w-0 flex-1 text-right">
           <p class="truncate text-sm text-white-dark">پنل مدیریت</p>
-          <h1 class="truncate text-base font-semibold text-black dark:text-white sm:text-lg">ParsShop Admin</h1>
+          <h1 class="truncate text-base font-semibold text-black dark:text-white sm:text-lg">پنل مدیریت هوکا</h1>
         </div>
 
         <button

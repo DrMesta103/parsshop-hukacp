@@ -8,7 +8,7 @@
           <router-link to="/admin/dashboard" class="main-logo flex items-center shrink-0">
             <span class="grid h-9 w-9 place-content-center rounded-xl bg-primary text-lg font-bold text-white">P</span>
             <span class="text-2xl ltr:ml-2 rtl:mr-2 font-semibold align-middle lg:inline dark:text-white-light">
-              ParsShop
+              پنل مدیریت هوکا
             </span>
           </router-link>
           <button
