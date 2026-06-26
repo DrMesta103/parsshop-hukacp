@@ -52,14 +52,14 @@
               </td>
               <td class="truncate max-w-[200px]" :title="r.comment">{{ r.comment || '-' }}</td>
               <td>
-                <span class="badge rounded-full px-3 py-1" :class="statusClass(r.status)">
-                  {{ statusText(r.status) }}
+                <span class="badge rounded-full px-3 py-1" :class="r.isApproved ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'">
+                  {{ r.isApproved ? 'تایید شده' : 'در انتظار / رد شده' }}
                 </span>
               </td>
               <td>{{ new Date(r.createdAt).toLocaleDateString('fa-IR') }}</td>
               <td class="text-center flex justify-center gap-2">
-                <button v-if="r.status === 'pending' || r.status === 'rejected'" type="button" class="btn btn-outline-success btn-sm" @click="updateStatus(r, 'approved')">تایید</button>
-                <button v-if="r.status === 'pending' || r.status === 'approved'" type="button" class="btn btn-outline-warning btn-sm" @click="updateStatus(r, 'rejected')">رد</button>
+                <button v-if="!r.isApproved" type="button" class="btn btn-outline-success btn-sm" @click="updateStatus(r, 'approved')">تایید</button>
+                <button v-if="r.isApproved" type="button" class="btn btn-outline-warning btn-sm" @click="updateStatus(r, 'rejected')">رد</button>
                 <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteReview(r)">حذف</button>
               </td>
             </tr>
@@ -128,27 +128,11 @@ const changePage = (page: number) => {
   }
 };
 
-const statusText = (status: string) => {
-  switch (status) {
-    case 'approved': return 'تایید شده';
-    case 'rejected': return 'رد شده';
-    case 'pending': return 'در انتظار';
-    default: return status;
-  }
-};
 
-const statusClass = (status: string) => {
-  switch (status) {
-    case 'approved': return 'bg-success/15 text-success';
-    case 'rejected': return 'bg-danger/15 text-danger';
-    case 'pending': return 'bg-warning/15 text-warning';
-    default: return 'bg-gray-200 text-gray-800';
-  }
-};
 
 const updateStatus = async (review: any, status: 'approved' | 'rejected') => {
   try {
-    await productService.updateAdminReview(review.id, { status });
+    await productService.updateAdminReview(review.id, { isApproved: status === 'approved' });
     Swal.fire({ icon: 'success', title: 'موفق', text: `نظر ${status === 'approved' ? 'تایید' : 'رد'} شد.`, toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
     fetchReviews();
   } catch (error: any) {
