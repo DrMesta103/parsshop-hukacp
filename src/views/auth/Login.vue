@@ -18,7 +18,7 @@
               <img src="/demo/public/assets/images/auth/logo-white.svg" alt="Logo" class="w-full" />
             </router-link>
             <div class="mt-24 hidden w-full max-w-[430px] lg:block">
-              <img src="/demo/public/assets/images/auth/login.svg" alt="Cover Image" class="w-full" />
+              <img src="/assets/images/auth/admin-login-cover.png" alt="Cover Image" class="w-full rounded-2xl shadow-xl" />
             </div>
           </div>
         </div>
@@ -103,15 +103,9 @@
               </router-link>
             </div>
 
-            <div class="text-center dark:text-white">
-              حساب کاربری ندارید؟
-              <router-link to="/auth/register" class="uppercase text-primary underline transition hover:text-black dark:hover:text-white">
-                ثبت نام
-              </router-link>
-            </div>
           </div>
           
-          <p class="absolute bottom-6 w-full text-center dark:text-white">© {{ new Date().getFullYear() }} ParsShop. تمامی حقوق محفوظ است.</p>
+          <p class="absolute bottom-6 w-full text-center dark:text-white">طراحی و توسعه اختصاصی این پنل با افتخار توسط <a href="https://hukaio.com" target="_blank" class="font-semibold text-primary hover:underline">گروه طراحی هوکا</a> انجام شده است.</p>
         </div>
       </div>
     </div>
