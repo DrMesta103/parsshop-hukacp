@@ -134,10 +134,34 @@ const router = createRouter({
           name: 'AdminSettings',
           component: () => import('@/views/admin/AdminSettings.vue')
         },
-        createAdminPlaceholderRoute('orders', 'AdminOrders', 'همه سفارشات', 'مشاهده و مدیریت تمام سفارش های ثبت شده در فروشگاه'),
-        createAdminPlaceholderRoute('orders/pending-payment', 'AdminOrdersPendingPayment', 'سفارشات در انتظار پرداخت', 'پیگیری سفارش هایی که هنوز پرداخت آن ها نهایی نشده است'),
-        createAdminPlaceholderRoute('orders/processing', 'AdminOrdersProcessing', 'سفارشات در حال پردازش', 'مدیریت سفارش های آماده سازی، بسته بندی و ارسال'),
-        createAdminPlaceholderRoute('orders/returns', 'AdminOrdersReturns', 'مرجوعی و لغو شده', 'ثبت و بررسی درخواست های مرجوعی و سفارش های لغو شده'),
+        {
+          path: 'orders',
+          name: 'AdminOrders',
+          component: () => import('@/views/admin/orders/AdminOrdersList.vue'),
+        },
+        {
+          path: 'orders/pending-payment',
+          name: 'AdminOrdersPendingPayment',
+          component: () => import('@/views/admin/orders/AdminOrdersList.vue'),
+          meta: { statusFilter: 'pending_payment' }
+        },
+        {
+          path: 'orders/processing',
+          name: 'AdminOrdersProcessing',
+          component: () => import('@/views/admin/orders/AdminOrdersList.vue'),
+          meta: { statusFilter: 'processing' }
+        },
+        {
+          path: 'orders/returns',
+          name: 'AdminOrdersReturns',
+          component: () => import('@/views/admin/orders/AdminOrdersList.vue'),
+          meta: { statusFilter: 'returns' }
+        },
+        {
+          path: 'orders/detail/:id',
+          name: 'AdminOrderDetail',
+          component: () => import('@/views/admin/orders/AdminOrderDetail.vue'),
+        },
         createAdminPlaceholderRoute('inventory', 'AdminInventory', 'موجودی کالا', 'نمایش و مدیریت موجودی فعلی محصولات'),
         createAdminPlaceholderRoute('inventory/low-stock', 'AdminInventoryLowStock', 'هشدار کمبود', 'بررسی محصولاتی که به حداقل موجودی رسیده اند'),
         createAdminPlaceholderRoute('inventory/warehouses', 'AdminInventoryWarehouses', 'انبارها', 'مدیریت انبارها و ظرفیت نگهداری کالا'),
