@@ -162,10 +162,27 @@ const router = createRouter({
           name: 'AdminOrderDetail',
           component: () => import('@/views/admin/orders/AdminOrderDetail.vue'),
         },
-        createAdminPlaceholderRoute('inventory', 'AdminInventory', 'موجودی کالا', 'نمایش و مدیریت موجودی فعلی محصولات'),
-        createAdminPlaceholderRoute('inventory/low-stock', 'AdminInventoryLowStock', 'هشدار کمبود', 'بررسی محصولاتی که به حداقل موجودی رسیده اند'),
-        createAdminPlaceholderRoute('inventory/warehouses', 'AdminInventoryWarehouses', 'انبارها', 'مدیریت انبارها و ظرفیت نگهداری کالا'),
-        createAdminPlaceholderRoute('inventory/transfers', 'AdminInventoryTransfers', 'جابجایی بین انبارها', 'ثبت انتقال کالا میان انبارهای فروشگاه'),
+        {
+          path: 'inventory',
+          name: 'AdminInventory',
+          component: () => import('@/views/admin/inventory/AdminInventoryList.vue'),
+        },
+        {
+          path: 'inventory/low-stock',
+          name: 'AdminInventoryLowStock',
+          component: () => import('@/views/admin/inventory/AdminInventoryList.vue'),
+          meta: { lowStockOnly: true }
+        },
+        {
+          path: 'inventory/warehouses',
+          name: 'AdminInventoryWarehouses',
+          component: () => import('@/views/admin/inventory/AdminWarehousesList.vue'),
+        },
+        {
+          path: 'inventory/transfers',
+          name: 'AdminInventoryTransfers',
+          component: () => import('@/views/admin/inventory/AdminStockTransfer.vue'),
+        },
         createAdminPlaceholderRoute('customers', 'AdminCustomers', 'همه مشتریان', 'مدیریت اطلاعات مشتریان فروشگاه'),
         createAdminPlaceholderRoute('customers/groups', 'AdminCustomersGroups', 'گروه های مشتریان', 'دسته بندی مشتریان بر اساس سطح یا رفتار خرید'),
         createAdminPlaceholderRoute('customers/reviews', 'AdminCustomersReviews', 'نظرات و امتیازها', 'مدیریت دیدگاه ها و امتیازهای ثبت شده برای محصولات'),
